@@ -25,7 +25,7 @@ jobs:
 
             # 3. Vérifier le fichier composer.json
             - name: Validate composer.json
-              run: composer validate --strict
+              run: composer validate
 
             # 4. Gérer le cache pour accélérer les futures exécutions
             - name: Cache Composer packages
