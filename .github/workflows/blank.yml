@@ -1,36 +1,68 @@
-# This is a basic workflow to help you get started with Actions
+name: Symfony CI/CD
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    push:
+        branches: ["main", "develop"]
+    pull_request:
+        branches: ["main", "develop"]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    symfony-tests:
+        runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+        steps:
+            # 1. Récupérer le code du dépôt
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+            # 2. Configurer la bonne version de PHP
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: "8.2" # À adapter selon ta version
+                  extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+                  coverage: none
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+            # 3. Vérifier le fichier composer.json
+            - name: Validate composer.json
+              run: composer validate --strict
+
+            # 4. Gérer le cache pour accélérer les futures exécutions
+            - name: Cache Composer packages
+              id: composer-cache
+              uses: actions/cache@v3
+              with:
+                  path: vendor
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+
+            # 5. Installer les dépendances PHP
+            - name: Install Dependencies
+              run: composer install --prefer-dist --no-progress --no-suggest
+
+            # 6. Préparer l'environnement Symfony pour les tests
+            - name: Build Symfony Cache & Env
+              env:
+                  APP_ENV: test
+              run: |
+                  php bin/console cache:clear
+                  php bin/console cache:warmup
+
+            # 7. Créer la base de données et charger les schémas/fixtures
+            - name: Prepare Database for Tests
+              env:
+                  DATABASE_URL: "sqlite:///%kernel.project_dir%/var/test.db"
+                  APP_ENV: test
+              run: |
+                  php bin/console doctrine:database:create --if-not-exists
+                  php bin/console doctrine:schema:update --force
+                  # Optionnel : décommente la ligne suivante si tu as des fixtures
+                  # php bin/console doctrine:fixtures:load --no-interaction
+
+            # 8. Exécuter les tests d'intégration (PHPUnit)
+            - name: Run Tests
+              env:
+                  DATABASE_URL: "sqlite:///%kernel.project_dir%/var/test.db"
+                  APP_ENV: test
+              run: vendor/bin/phpunit
