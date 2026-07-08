@@ -24,10 +24,22 @@ final class UserControllerTest extends WebTestCase
         $this->manager = static::getContainer()->get('doctrine')->getManager();
         $this->userRepository = $this->manager->getRepository(User::class);
 
+        // Ordre de suppression respectant les FK : ListItem → TodoList → User
+        $listItemRepo = $this->manager->getRepository(\App\Entity\ListItem::class);
+        foreach ($listItemRepo->findAll() as $item) {
+            $this->manager->remove($item);
+        }
+        $this->manager->flush();
+
+        $todoListRepo = $this->manager->getRepository(\App\Entity\TodoList::class);
+        foreach ($todoListRepo->findAll() as $list) {
+            $this->manager->remove($list);
+        }
+        $this->manager->flush();
+
         foreach ($this->userRepository->findAll() as $object) {
             $this->manager->remove($object);
         }
-
         $this->manager->flush();
     }
 

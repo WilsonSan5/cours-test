@@ -1,4 +1,4 @@
 <form method="post" action="{{ path('app_todo_list_delete', {'id': todo_list.id}) }}" onsubmit="return confirm('Supprimer cette liste ?');">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ todo_list.id) }}">
-    <button class="btn btn-danger">🗑 Supprimer la liste</button>
+    <button class="btn btn-danger" name="delete" value="1">🗑 Supprimer la liste</button>
 </form>

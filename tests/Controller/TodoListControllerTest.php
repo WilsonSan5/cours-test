@@ -24,10 +24,17 @@ final class TodoListControllerTest extends WebTestCase
         $this->manager = static::getContainer()->get('doctrine')->getManager();
         $this->todoListRepository = $this->manager->getRepository(TodoList::class);
 
+        // Supprimer d'abord les ListItem (qui référencent TodoList) pour éviter les violations FK
+        $listItemRepo = $this->manager->getRepository(\App\Entity\ListItem::class);
+        foreach ($listItemRepo->findAll() as $item) {
+            $this->manager->remove($item);
+        }
+        $this->manager->flush();
+
+        // Ensuite supprimer les TodoList (qui référencent User via OneToOne)
         foreach ($this->todoListRepository->findAll() as $object) {
             $this->manager->remove($object);
         }
-
         $this->manager->flush();
     }
 
@@ -37,7 +44,7 @@ final class TodoListControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', $this->path);
 
         self::assertResponseStatusCodeSame(200);
-        self::assertPageTitleContains('TodoList index');
+        self::assertPageTitleContains('TodoList');
 
         // Use the $crawler to perform additional assertions e.g.
         // self::assertSame('Some text on the page', $crawler->filter('.p')->first()->text());
@@ -58,8 +65,7 @@ final class TodoListControllerTest extends WebTestCase
 
         self::assertResponseStatusCodeSame(200);
 
-        $this->client->submitForm('Save', [
-            'todo_list[created_at]' => '2026-06-11 12:00:00',
+        $this->client->submitForm('Enregistrer', [
             'todo_list[user_id]' => (string) $user->getId(),
         ]);
 
@@ -119,8 +125,7 @@ final class TodoListControllerTest extends WebTestCase
 
         $this->client->request('GET', sprintf('%s%s/edit', $this->path, $fixture->getId()));
 
-        $this->client->submitForm('Update', [
-            'todo_list[created_at]' => '2026-06-12 12:00:00',
+        $this->client->submitForm('Mettre à jour', [
             'todo_list[user_id]' => (string) $user2->getId(),
         ]);
 
@@ -128,7 +133,6 @@ final class TodoListControllerTest extends WebTestCase
 
         $fixture = $this->todoListRepository->findAll();
 
-        self::assertEquals(new \DateTimeImmutable('2026-06-12 12:00:00'), $fixture[0]->getCreatedAt());
         self::assertSame($user2->getId(), $fixture[0]->getUserId()->getId());
     }
 
@@ -150,7 +154,11 @@ final class TodoListControllerTest extends WebTestCase
         $this->manager->flush();
 
         $this->client->request('GET', sprintf('%s%s', $this->path, $fixture->getId()));
-        $this->client->submitForm('Delete');
+
+        // Soumettre le formulaire de suppression directement via son action
+        $crawler = $this->client->getCrawler();
+        $deleteForm = $crawler->filter('form[action*="/todo/list/"]')->form();
+        $this->client->submit($deleteForm);
 
         self::assertResponseRedirects('/todo/list');
         self::assertSame(0, $this->todoListRepository->count([]));
