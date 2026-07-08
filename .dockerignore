@@ -1,0 +1,26 @@
+# VCS & CI
+.git
+.github
+
+# Dépendances et artefacts (réinstallés dans le conteneur)
+vendor
+node_modules
+drivers
+var
+.phpunit.cache
+
+# Assets compilés
+public/assets
+public/bundles
+assets/vendor
+
+# Fichiers locaux et secrets
+.env.local
+.env.*.local
+phpunit.xml
+
+# Docker & docs (le dossier docker/ est requis par les COPY du Dockerfile)
+Dockerfile
+.dockerignore
+compose*.yaml
+*.md
