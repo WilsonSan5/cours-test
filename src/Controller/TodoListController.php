@@ -30,9 +30,13 @@ final class TodoListController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($todoList->getCreatedAt() === null) {
+                $todoList->setCreatedAt(new \DateTimeImmutable());
+            }
             $entityManager->persist($todoList);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Liste créée avec succès !');
             return $this->redirectToRoute('app_todo_list_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -74,6 +78,7 @@ final class TodoListController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$todoList->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($todoList);
             $entityManager->flush();
+            $this->addFlash('success', 'Liste supprimée.');
         }
 
         return $this->redirectToRoute('app_todo_list_index', [], Response::HTTP_SEE_OTHER);

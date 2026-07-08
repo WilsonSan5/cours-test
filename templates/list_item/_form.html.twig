@@ -1,4 +1,21 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+    {% for field in form %}
+        {% if field.vars.name != '_token' and field.vars.name != 'created_at' %}
+        <div class="form-group">
+            <label for="{{ field.vars.id }}">
+                {% if field.vars.name == 'title' %}Titre de la tâche
+                {% elseif field.vars.name == 'TodoList' %}Liste parente
+                {% else %}{{ field.vars.label|default(field.vars.name|capitalize) }}
+                {% endif %}
+            </label>
+            {{ form_widget(field) }}
+            {% if form_errors(field) is not empty %}
+                <div style="color:var(--danger);font-size:.82rem;margin-top:.3rem;">{{ form_errors(field) }}</div>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% endfor %}
+    {# Hidden token #}
+    {% if form._token is defined %}{{ form_widget(form._token) }}{% endif %}
+    <button type="submit" class="btn btn-primary" style="width:100%;">{{ button_label|default('💾 Enregistrer') }}</button>
 {{ form_end(form) }}

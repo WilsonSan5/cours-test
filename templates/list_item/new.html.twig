@@ -1,11 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New ListItem{% endblock %}
+{% block title %}Nouvelle tâche — TodoList{% endblock %}
 
 {% block body %}
-    <h1>Create new ListItem</h1>
+<div class="page-header">
+    <h1>➕ Nouvelle tâche</h1>
+    <a href="{{ path('app_list_item_index') }}" class="btn btn-secondary">← Retour</a>
+</div>
 
+<div class="card" style="max-width:480px;">
     {{ include('list_item/_form.html.twig') }}
-
-    <a href="{{ path('app_list_item_index') }}">back to list</a>
+</div>
 {% endblock %}

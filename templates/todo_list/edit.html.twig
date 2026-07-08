@@ -1,13 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit TodoList{% endblock %}
+{% block title %}Éditer liste #{{ todo_list.id }} — TodoList{% endblock %}
 
 {% block body %}
-    <h1>Edit TodoList</h1>
+<div class="page-header">
+    <h1>✏️ Éditer liste <span style="opacity:.6">#{{ todo_list.id }}</span></h1>
+    <a href="{{ path('app_todo_list_show', {'id': todo_list.id}) }}" class="btn btn-secondary">← Retour</a>
+</div>
 
-    {{ include('todo_list/_form.html.twig', {'button_label': 'Update'}) }}
+<div class="card" style="max-width:480px;">
+    {{ include('todo_list/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+</div>
 
-    <a href="{{ path('app_todo_list_index') }}">back to list</a>
+<hr class="divider" style="max-width:480px;">
 
-    {{ include('todo_list/_delete_form.html.twig') }}
+{{ include('todo_list/_delete_form.html.twig') }}
 {% endblock %}

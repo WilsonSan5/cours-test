@@ -1,37 +1,62 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ListItem index{% endblock %}
+{% block title %}Mes tâches — TodoList{% endblock %}
 
 {% block body %}
-    <h1>ListItem index</h1>
+<div class="page-header">
+    <h1>📝 Mes tâches</h1>
+    <a href="{{ path('app_list_item_new') }}" class="btn btn-primary">＋ Nouvelle tâche</a>
+</div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Title</th>
-                <th>Created_at</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for list_item in list_items %}
-            <tr>
-                <td>{{ list_item.id }}</td>
-                <td>{{ list_item.title }}</td>
-                <td>{{ list_item.createdAt ? list_item.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_list_item_show', {'id': list_item.id}) }}">show</a>
-                    <a href="{{ path('app_list_item_edit', {'id': list_item.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_list_item_new') }}">Create new</a>
+<div class="card">
+    {% if list_items is empty %}
+        <div class="empty-state">
+            <div class="icon">✏️</div>
+            <p>Aucune tâche pour l'instant.</p>
+            <a href="{{ path('app_list_item_new') }}" class="btn btn-primary">Ajouter ma première tâche</a>
+        </div>
+    {% else %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Liste</th>
+                        <th>Créée le</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for list_item in list_items %}
+                    <tr>
+                        <td><span class="badge badge-purple">#{{ list_item.id }}</span></td>
+                        <td style="font-weight:500;">{{ list_item.title }}</td>
+                        <td>
+                            {% if list_item.todoList %}
+                                <a href="{{ path('app_todo_list_show', {'id': list_item.todoList.id}) }}" style="color:var(--accent2);text-decoration:none;">
+                                    Liste #{{ list_item.todoList.id }}
+                                </a>
+                            {% else %}
+                                <span style="color:var(--text-muted);">—</span>
+                            {% endif %}
+                        </td>
+                        <td style="color:var(--text-muted);font-size:.88rem;">{{ list_item.createdAt ? list_item.createdAt|date('d/m/Y à H:i') : '—' }}</td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ path('app_list_item_show', {'id': list_item.id}) }}" class="btn btn-secondary btn-sm">👁 Voir</a>
+                                <a href="{{ path('app_list_item_edit', {'id': list_item.id}) }}" class="btn btn-secondary btn-sm">✏️</a>
+                                <form method="post" action="{{ path('app_list_item_delete', {'id': list_item.id}) }}" onsubmit="return confirm('Supprimer cette tâche ?');" style="display:inline;">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ list_item.id) }}">
+                                    <button class="btn btn-danger btn-sm">🗑</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

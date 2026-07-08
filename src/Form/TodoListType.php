@@ -14,12 +14,11 @@ class TodoListType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('created_at', null, [
-                'widget' => 'single_text',
-            ])
             ->add('user_id', EntityType::class, [
                 'class' => User::class,
                 'choice_label' => 'id',
+                'required' => false,
+                'placeholder' => '— Sélectionner un utilisateur —',
             ])
         ;
     }

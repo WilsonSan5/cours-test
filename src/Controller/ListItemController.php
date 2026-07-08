@@ -30,9 +30,13 @@ final class ListItemController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if ($listItem->getCreatedAt() === null) {
+                $listItem->setCreatedAt(new \DateTimeImmutable());
+            }
             $entityManager->persist($listItem);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Tâche créée avec succès !');
             return $this->redirectToRoute('app_list_item_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -59,6 +63,7 @@ final class ListItemController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash('success', 'Tâche mise à jour !');
             return $this->redirectToRoute('app_list_item_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -74,6 +79,7 @@ final class ListItemController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$listItem->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($listItem);
             $entityManager->flush();
+            $this->addFlash('success', 'Tâche supprimée.');
         }
 
         return $this->redirectToRoute('app_list_item_index', [], Response::HTTP_SEE_OTHER);

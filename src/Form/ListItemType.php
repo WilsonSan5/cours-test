@@ -15,12 +15,11 @@ class ListItemType extends AbstractType
     {
         $builder
             ->add('title')
-            ->add('created_at', null, [
-                'widget' => 'single_text',
-            ])
             ->add('TodoList', EntityType::class, [
                 'class' => TodoList::class,
                 'choice_label' => 'id',
+                'required' => false,
+                'placeholder' => '— Sélectionner une liste —',
             ])
         ;
     }

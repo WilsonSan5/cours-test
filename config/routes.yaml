@@ -9,3 +9,10 @@
 
 controllers:
     resource: routing.controllers
+
+app_user_index:
+    path: /user
+    controller: App\Controller\UserController::index
+app_todo_index:
+    path: /todo
+    controller: App\Controller\TodoController::index
