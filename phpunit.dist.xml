@@ -39,6 +39,8 @@
         </deprecationTrigger>
     </source>
 
+    <!-- Extension Panther : démarre automatiquement le serveur PHP lors des tests E2E -->
     <extensions>
+        <bootstrap class="Symfony\Component\Panther\ServerExtension"/>
     </extensions>
 </phpunit>
