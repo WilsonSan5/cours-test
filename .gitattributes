@@ -1,0 +1,23 @@
+# Normalise les fins de ligne pour tout le monde (Windows, macOS, Linux, WSL).
+# Le projet tourne dans des conteneurs Linux : on force donc le LF partout.
+* text=auto eol=lf
+
+# Scripts et fichiers Docker : IMPÉRATIVEMENT en LF, sinon le conteneur casse
+# (un entrypoint en CRLF échoue avec "\r command not found").
+*.sh          text eol=lf
+Dockerfile    text eol=lf
+*.dockerfile  text eol=lf
+docker/**     text eol=lf
+bin/console   text eol=lf
+bin/phpunit   text eol=lf
+
+# Fichiers binaires : ne jamais convertir
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.woff   binary
+*.woff2  binary
+drivers/chromedriver binary
